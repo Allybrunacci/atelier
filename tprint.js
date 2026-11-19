@@ -230,15 +230,18 @@ VIEWS.printables = {
   },
 };
 VIEWS.printable = {
-  tab: 'therapy', title: 'Printable',
-  head(id) { const p = PRN_BY[id]; return p ? { back: '#/printables', kicker: p.g, title: esc(p.n) } : { back: '#/printables', title: 'Not found' }; },
+  // Teaching worksheets live under Ideas; the art therapy pages under Therapy.
+  get tab() { const p = PRN_BY[UI.param]; return p && p.teach ? 'ideas' : 'therapy'; },
+  title: 'Printable',
+  head(id) { const p = PRN_BY[id]; return p ? { back: p.teach ? '#/worksheets' : '#/printables', kicker: esc(p.g), title: esc(p.n) } : { back: '#/printables', title: 'Not found' }; },
   render(id) {
     const p = PRN_BY[id];
     if (!p) return emptyState('warn', 'Page not found', '', '<a class="btn" href="#/printables">All printables</a>');
     return `<p class="lead">${esc(p.d)}</p>${p.care ? `<div class="callout care" style="margin-bottom:12px">${icon('heart')}<p>${esc(p.care)}</p></div>` : ''}
       <div class="pr-big" role="img" aria-label="Preview of ${esc(p.n)}">${p.svg()}</div>
       <div class="btn-row"><button type="button" class="btn primary" data-act="print">${icon('print')} Print</button><button type="button" class="btn" data-act="share">${icon('share')} Save or share</button>
-      ${p.colour ? `<button type="button" class="btn soft" data-act="colour">${icon('brush')} Colour it in here</button>` : ''}${id === 'affirm' ? `<button type="button" class="btn ghost" data-act="shuffle">${icon('shuffle')} Other sentences</button>` : ''}</div>`;
+      ${p.colour ? `<button type="button" class="btn soft" data-act="colour">${icon('brush')} Colour it in here</button>` : ''}${id === 'affirm' ? `<button type="button" class="btn ghost" data-act="shuffle">${icon('shuffle')} Other sentences</button>` : ''}</div>
+      ${p.tech && typeof TECH_BY !== 'undefined' && TECH_BY[p.tech] ? `<p class="fine" style="margin-top:12px">${icon('book', 'sm')} How to teach it: <a href="#/technique/${p.tech}">${esc(TECH_BY[p.tech].n)}</a></p>` : ''}`;
   },
   act: {
     print: () => printSVG(PRN_BY[UI.param].svg()),

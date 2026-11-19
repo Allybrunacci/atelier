@@ -1,11 +1,12 @@
 /* Atelier — offline support. Network first so updates show straight away; the cache is the fallback.
    Only touches its own caches and its own folder, so other apps on the same site are unaffected. */
-const CACHE = 'atelier-v2';
+const CACHE = 'atelier-v3';
 const SHELL = [
   './', './index.html', './app.css', './core.js', './sched.js', './db.js', './deco.js', './illus.js', './illus2.js', './techniques.js', './techniques2.js',
   './therapy.js', './therapy2.js', './therapy3.js', './therapy4.js', './therapy5.js', './therapy6.js', './tprompts.js', './tguides.js', './tprograms.js',
-  './plans.js', './parts.js', './session.js', './classes.js', './calendar.js', './today.js', './earnings.js', './photos.js',
-  './ideas.js', './planner.js', './heal.js', './ttools.js', './tdraw.js', './tprint.js', './settings.js', './manifest.webmanifest',
+  './plans.js', './parts.js', './session.js', './classes.js', './calendar.js', './today.js', './earnings.js', './money.js', './docs.js', './spend.js', './photos.js',
+  './ideas.js', './planner.js', './heal.js', './ttools.js', './tdraw.js', './tprint.js', './tsheets.js', './teach.js', './seasons.js', './seasonal.js', './reftools.js',
+  './settings.js', './manifest.webmanifest',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png',
   './img/grain-light.png', './img/grain-dark.png',
   './fonts/fraunces-soft-latin.woff2', './fonts/nunito-latin.woff2', './fonts/caveat-latin.woff2',

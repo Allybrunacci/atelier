@@ -155,6 +155,33 @@ const SCENES = {
     <path class="a-p a-o" d="M44 72c0-20 18-32 40-32 18 0 30 8 35 20h7v16h-8c-3 8-10 14-18 16v10h-10v-8H76v8H66v-11c-13-4-22-12-22-19z"/>
     <rect class="a-dot" x="76" y="44" width="16" height="4" rx="2"/><circle class="a-dot" cx="104" cy="64" r="2.6"/><ellipse class="a-w a-o" cx="125" cy="68" rx="4" ry="6"/><path class="a-thin" d="M44 70q-10 2-8 10"/><ellipse cx="96" cy="74" rx="5" ry="3" fill="#FF5C9A" opacity=".7"/>
     ${[[34, 30], [118, 28], [140, 102]].map(([x, y], i) => `<circle class="a-b a-o" cx="${x}" cy="${y}" r="${[9, 7, 8][i]}"/><path class="a-thin" d="M${x} ${y - 4}v8"/>`).join('')}${SPK(64, 22, 0.9, 'a-s')}`,
+  payments: () => `<path style="fill:var(--il-pink-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-pay', 0.12, 9, 48)}"/>
+    <g transform="rotate(-8 68 62)"><rect class="a-m a-o" x="32" y="42" width="72" height="42" rx="6"/><circle class="a-w a-o" cx="68" cy="63" r="11"/><text x="68" y="68.5" text-anchor="middle" font-family="Nunito, Arial, sans-serif" font-size="15" font-weight="800" fill="var(--il-ink)">$</text><circle class="a-dot" cx="42" cy="63" r="2"/><circle class="a-dot" cx="94" cy="63" r="2"/></g>
+    ${[0, 1, 2].map(i => `<ellipse class="a-b a-o" cx="114" cy="${100 - i * 9}" rx="18" ry="6.5"/>`).join('')}
+    <circle class="a-m a-o" cx="130" cy="38" r="13"/><path class="a-ink" d="M123.5 38.5l5 5 8.5-10"/>${SPK(28, 30, 0.9, 'a-p')}${SPK(148, 74, 0.7)}`,
+  invoices: () => `<path style="fill:var(--il-sky-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-inv', 0.12, 9, 48)}"/>
+    <g transform="rotate(-4 82 62)"><path class="a-w a-o" d="M52 12h44l16 16v84H52z"/><path class="a-thin" d="M96 12v16h16"/><rect class="a-b a-o" x="60" y="24" width="26" height="8" rx="4"/>
+    <path class="a-thin" d="M60 46h42M60 56h42M60 66h30"/><rect class="a-p a-o" x="72" y="82" width="32" height="13" rx="6.5"/></g>
+    ${pencilG(112, 112, 34, -62, 'a-l')}${SPK(32, 34, 1, 'a-m')}${SPK(134, 24, 0.8, 'a-p')}`,
+  expenses: () => `<path style="fill:var(--il-sun-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-exp', 0.12, 9, 48)}"/>
+    ${brushG(60, 56, 30, -72, 'a-p')}<g transform="rotate(8 80 36)"><rect class="a-s a-o" x="73" y="22" width="14" height="32" rx="3"/><rect class="a-w a-o" x="75" y="15" width="10" height="9" rx="2"/></g>${pencilG(98, 56, 26, -80, 'a-m')}
+    <path class="a-e a-o" d="M44 52h80l-6 58H50z"/><path class="a-thin" d="M68 66q16 12 32 0"/><path class="a-ink" d="M64 52q0-12 8-13M104 52q0-12-8-13"/>
+    <path class="a-w a-o" d="M126 66h22v36l-3.7-2.6-3.6 2.6-3.7-2.6-3.6 2.6-3.7-2.6-3.7 2.6z"/><path class="a-thin" d="M131 75h12M131 83h12M131 91h7"/>${SPK(26, 40, 0.9, 'a-p')}`,
+  tax: () => `<path style="fill:var(--il-mint-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-tax', 0.12, 9, 48)}"/>
+    <g transform="rotate(-6 60 60)"><path class="a-w a-o" d="M40 20h40v80l-5-3.5-5 3.5-5-3.5-5 3.5-5-3.5-5 3.5-5-3.5-5 3.5z"/><path class="a-thin" d="M48 34h24M48 44h24M48 54h16M48 74h24"/></g>
+    <g transform="rotate(5 108 63)"><rect class="a-l a-o" x="84" y="30" width="48" height="66" rx="8"/><rect class="a-w a-o" x="91" y="37" width="34" height="14" rx="3"/>${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect class="${(r + c) % 2 ? 'a-b' : 'a-p'} a-o" x="${91 + c * 12}" y="${57 + r * 12}" width="9" height="8" rx="2"/>`).join('')).join('')}</g>
+    ${SPK(142, 24, 0.9)}${SPK(24, 98, 0.7, 'a-m')}`,
+  seasons: () => `<path style="fill:var(--il-orange-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-sea', 0.12, 9, 48)}"/>
+    ${sunG(44, 38, 12)}<rect class="a-p a-o" x="68" y="58" width="46" height="40" rx="4"/><rect class="a-b a-o" x="64" y="48" width="54" height="13" rx="3"/><path class="a-ink" d="M91 48v50"/>
+    <path class="a-l a-o" d="M91 48q-16-17-22-6t22 6zM91 48q16-17 22-6t-22 6z"/>${leafG(128, 40, 22, -130, 'a-e')}${flowerG(136, 94, 7, 'a-s')}<path class="a-ink" d="M136 101v14"/>${SPK(24, 92, 0.8, 'a-p')}`,
+  worksheets: () => `<path style="fill:var(--il-sky-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-ws', 0.12, 9, 48)}"/>
+    <g transform="rotate(-5 80 60)"><rect class="a-w a-o" x="44" y="12" width="72" height="96" rx="4"/>${['#FFFFFF', '#DCD5E0', '#ADA4B3', '#71677A', '#2E2433'].map((f, i) => `<rect x="${52 + i * 11.5}" y="22" width="10" height="10" rx="1.5" fill="${f}" stroke="var(--il-ink)" stroke-width="1.6"/>`).join('')}
+    <ellipse cx="82" cy="88" rx="17" ry="4.5" fill="#ADA4B3" opacity=".7"/><circle cx="80" cy="64" r="19" fill="#DCD5E0" stroke="var(--il-ink)" stroke-width="2.2"/><path d="M95.5 53.2A19 19 0 0 1 64.5 75 22 22 0 0 0 95.5 53.2z" fill="#71677A" opacity=".85"/><circle cx="72" cy="57" r="4.5" fill="#fff"/></g>
+    ${pencilG(118, 110, 30, -66, 'a-b')}${SPK(28, 34, 0.9, 'a-p')}${SPK(140, 28, 0.7, 'a-m')}`,
+  reftool: () => `<path style="fill:var(--il-grape-l)" class="a-o" d="${blobD(84, 64, 54, 'sc-rt', 0.12, 9, 48)}"/>
+    <rect class="a-w a-o" x="36" y="16" width="88" height="68" rx="4"/><rect style="fill:var(--il-sky-l)" x="42" y="22" width="76" height="56"/><path class="a-m a-o" d="M42 78l20-26 12 13 15-21 29 34z"/><circle class="a-b a-o" cx="102" cy="34" r="6"/>
+    <path class="a-thin" d="M67.3 22v56M92.7 22v56M42 40.7h76M42 59.3h76"/><rect fill="none" class="a-o" x="42" y="22" width="76" height="56"/>
+    ${['a-p', 'a-b', 'a-m', 'a-s', 'a-l'].map((c, i) => `<rect class="${c} a-o" x="${44 + i * 15}" y="92" width="12" height="12" rx="3"/>`).join('')}${SPK(138, 30, 0.9, 'a-p')}${SPK(24, 70, 0.7)}`,
 };
 function headerArt(name) {
   const s = SCENES[name];

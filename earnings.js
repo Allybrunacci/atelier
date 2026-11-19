@@ -1,18 +1,19 @@
-/* Atelier — earnings: each week (Monday to Sunday), a 12-week chart, totals, and a spreadsheet export */
+/* Atelier — money: each week's earnings (Monday to Sunday), a 12-week chart, totals and a spreadsheet export,
+   with the way in to who's paid, invoices, expenses and tax time */
 'use strict';
 
 VIEWS.earnings = {
-  tab: 'today', title: 'Earnings',
+  tab: 'today', title: 'Money',
   head(p) {
     const mon = mondayOf(validDate(p) ? p : today());
-    return { deco: true, back: '#/today', title: 'Earnings', sub: `Week of ${fmtWeek(mon)}`, actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="csv" aria-label="Export to a spreadsheet">${icon('share')}</button></div>` };
+    return { deco: true, back: '#/today', title: 'Money', sub: `Week of ${fmtWeek(mon)}`, actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="csv" aria-label="Export earnings to a spreadsheet">${icon('share')}</button></div>` };
   },
   render(p) {
     const t = today(), cur = mondayOf(t), mon = mondayOf(validDate(p) ? p : t), wk = weekSummary(mon);
     let h = `<div class="cal-top"><button type="button" class="icon-btn" data-act="wk" data-v="-7" aria-label="Previous week">${icon('chev-l')}</button><h2>${mon === cur ? 'This week' : mon === addDays(cur, -7) ? 'Last week' : mon === addDays(cur, 7) ? 'Next week' : fmtWeek(mon)}</h2>${mon !== cur ? '<button type="button" class="btn sm ghost" data-act="now">This week</button>' : ''}<button type="button" class="icon-btn" data-act="wk" data-v="7" aria-label="Next week">${icon('chev-r')}</button></div>`;
     h += `<div class="card"><div class="stat">${money(wk.earned)}</div><p class="fine" style="margin:4px 0 0">Earned ${fmtDate(mon, { noDay: true })} to ${fmtDate(wk.sun, { noDay: true })} from ${plural(wk.done.length, 'class', 'classes')} you ticked</p>
       ${wk.aheadAmt ? `<p style="margin:12px 0 0">${icon('clock', 'sm')} <b>${money(wk.aheadAmt)}</b> still to come from ${plural(wk.ahead.length, 'class', 'classes')}</p>` : ''}
-      ${wk.missed.length ? `<p style="margin:8px 0 0;color:var(--warn)">${icon('warn', 'sm')} <b>${plural(wk.missed.length, 'class', 'classes')}</b> not ticked yet (${money(wk.missedAmt)})</p>` : ''}</div>`;
+      ${wk.missed.length ? `<p style="margin:8px 0 0;color:var(--warn)">${icon('warn', 'sm')} <b>${plural(wk.missed.length, 'class', 'classes')}</b> not ticked yet (${money(wk.missedAmt)})</p>` : ''}</div>${moneyTiles()}`;
     if (wk.missed.length) h += `<div class="sec"><h2>Not ticked yet</h2></div>${wk.missed.map(o => sessRow(o, { date: true })).join('')}`;
     if (wk.done.length) {
       h += `<div class="sec"><h2>Taught</h2></div>${wk.done.map(x => { const o = x.c && occByKey(x.key); return o ? sessRow(o, { date: true }) : `<div class="srow done"><div class="s-main"><span class="sbar" style="--c:var(--line-2)"></span><span class="s-txt"><b>${x.c ? esc(x.c.name) : 'Deleted class'}</b><small>${fmtDate(x.s.d)}</small></span><span class="s-amt">${money(x.amt)}</span></div></div>`; }).join('')}`;

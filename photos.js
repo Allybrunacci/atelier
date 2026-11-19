@@ -88,7 +88,7 @@ VIEWS.photo = {
       <label class="field"><span class="f-l">Notes</span><textarea id="pnote" class="inp" placeholder="Where it’s from, ideas for using it…">${esc(p.note || '')}</textarea></label>
       <p class="fine">Added ${fmtDate(p.added || today(), { long: true })} · ${p.w && p.h ? `${p.w} × ${p.h}` : ''} · ${p.kb || '?'} KB${cls ? ` · ${esc(cls.name)}${p.d ? `, ${fmtDate(p.d)}` : ''}` : ''}</p>`;
     h += `<div class="sec"><h2>Used with</h2></div>${uses.length ? `<div class="list">${uses.map(u => `<button type="button" class="lrow" data-act="open" data-key="${esc(u.key)}"><span class="sw" style="--c:${u.c ? u.c.color : 'var(--line-2)'}"></span><span class="t"><b>${u.c ? esc(u.c.name) : 'Deleted class'}</b><small>${fmtDate(u.s.d, { long: true })} · as ${u.how === 'artwork' ? 'an artwork' : 'a reference'}</small></span>${icon('chev-r', 'go')}</button>`).join('')}</div>` : '<p class="fine">Not used with a class yet.</p>'}
-      <div class="btn-row"><button type="button" class="btn soft" data-act="use">${icon('plus')} Use with a class</button></div>`;
+      <div class="btn-row"><button type="button" class="btn soft" data-act="use">${icon('plus')} Use with a class</button><a class="btn" href="#/reftool/${esc(id)}">${icon('grid')} Reference tools</a></div>`;
     return h;
   },
   act: {

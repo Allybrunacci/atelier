@@ -59,9 +59,9 @@ function openRollCall(o) {
   const tpl = () => {
     const sts = activeStudents(o.c, o.date);
     return framed(sheetHead('Who came?', `${esc(o.c.name)} · ${fmtDate(o.date, { long: true })}`),
-      `<p class="fine">Term students are counted every class. Tick the casual students who came.</p>
-      <div class="list">${sts.map(st => attRow(st, s)).join('') || '<p class="fine" style="padding:12px 16px">No students yet.</p>'}</div>
-      ${dropInForm()}`,
+      `<p class="fine">Term students are counted every class. Tick the casual students who came${tracksPay(o.date) ? ', and whether they’ve paid' : ''}.</p>
+      <div class="list">${sts.map(st => attRow(st, s, o)).join('') || '<p class="fine" style="padding:12px 16px">No students yet.</p>'}</div>
+      ${dropInForm(o)}`,
       `<button type="button" class="btn big primary" data-act="done">${icon('check')} Taught · ${money(linesTotal(payLines(o.c, s, o.date)))}</button>`);
   };
   const sh = openSheet(tpl(), {
@@ -71,18 +71,21 @@ function openRollCall(o) {
     }),
   });
 }
-function attRow(st, s) {
+// o (the class occurrence) adds a "Paid?" switch for casual students who came.
+function attRow(st, s, o) {
   const here = isHere(s, st), drop = st.from && st.from === st.to;
   const kind = st.type === 'term' ? '<span class="pill term">Term</span>' : `<span class="pill casual">${drop ? 'Drop-in' : 'Casual'}</span>`;
   const rate = hasNum(st.rate) ? ` · ${money(st.rate)}` : '';
-  return `<div class="att"><div class="t"><b>${esc(st.name || 'Student')}</b><small>${kind}${rate}</small></div>
+  const pay = o && here && st.type !== 'term' && o.c.pay.mode === 'student' && tracksPay(o.date) ? paidBtn(o, st) : '';
+  return `<div class="att"><div class="t"><b>${esc(st.name || 'Student')}</b><small>${kind}${rate}</small></div>${pay}
     <button type="button" class="att-btn${here ? ' on' : ' away'}" data-act="att" data-id="${esc(st.id)}" aria-pressed="${here}" aria-label="${esc(st.name || 'Student')}: ${here ? 'here' : 'not here'}">${here ? `${icon('check', 'sm')} Here` : st.type === 'term' ? 'Away' : 'Not here'}</button></div>`;
 }
-const dropInForm = () => `<details class="more"><summary>${icon('plus')} Add a drop-in student</summary>
+const dropInForm = o => `<details class="more"><summary>${icon('plus')} Add a drop-in student</summary>
   <div class="two"><label class="field"><span class="f-l">Name</span><input name="dname" autocomplete="off" placeholder="Name"></label>
-  <label class="field"><span class="f-l">Paid (optional)</span><span class="money-in"><input name="drate" inputmode="decimal" placeholder="Casual rate"></span></label></div>
+  <label class="field"><span class="f-l">Amount (optional)</span><span class="money-in"><input name="drate" inputmode="decimal" placeholder="Casual rate"></span></label></div>
+  ${o && tracksPay(o.date) ? '<label class="check"><input type="checkbox" name="dpaid" checked><span>Paid on the day</span></label>' : ''}
   <button type="button" class="btn soft" data-act="dropin">Add drop-in</button></details>`;
-// Attendance taps and drop-ins (used by the roll call and the session sheet).
+// Attendance taps, payments and drop-ins (used by the roll call and the session sheet).
 function attActs(o, redraw) {
   return {
     att: a => {
@@ -93,16 +96,19 @@ function attActs(o, redraw) {
       save();
       redraw();
     },
+    paid: a => { const on = togglePaid(o, a.dataset.sid); redraw(); render(); toast(on ? `${icon('check')} Marked as paid` : 'Marked as not paid yet'); },
     dropin: (a, e, sh) => {
       const name = ($('[name=dname]', sh.el).value || '').trim();
       if (!name) { $('[name=dname]', sh.el).focus(); return; }
       const r = $('[name=drate]', sh.el).value, st = { id: uid(), name, type: 'casual', rate: hasNum(r) ? num(r) : null, from: o.date, to: o.date };
+      const paidNow = !!($('[name=dpaid]', sh.el) || {}).checked;
       o.c.students.push(st);
       sessionOf(o, true).att[st.id] = 1;
       refreshPay(o);
+      if (paidNow) markPaid([chargeFor(o, st)], { d: o.date });
       save();
       redraw();
-      toast(`${icon('check')} ${esc(name)} added for ${fmtDate(o.date)}`);
+      toast(`${icon('check')} ${esc(name)} added for ${fmtDate(o.date)}${paidNow ? ', paid' : ''}`);
     },
   };
 }

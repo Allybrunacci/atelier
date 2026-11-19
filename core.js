@@ -1,7 +1,7 @@
 /* Atelier — core: helpers, dates (weeks start on Monday), saved data, screens, sheets and messages */
 'use strict';
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -76,11 +76,13 @@ const hasNum = v => v !== null && v !== undefined && String(v).trim() !== '' && 
 
 /* ---------- saved data (this phone only) ---------- */
 const STORE_KEY = 'atelier:v1';
-const freshState = () => ({ v: 1, created: today(), name: '', terms: [], classes: {}, sessions: {}, photos: {}, plans: {}, favs: {}, tags: [], prefs: { seen: {}, breath: { p: 'calm', mins: 2 } }, savedAt: 0 });
+const freshState = () => ({ v: 1, created: today(), name: '', terms: [], classes: {}, sessions: {}, photos: {}, plans: {}, favs: {}, tags: [], paid: {}, fees: {}, docs: [], payers: {}, biz: {}, expenses: [], trips: [], payFrom: '', prefs: { seen: {}, breath: { p: 'calm', mins: 2 } }, savedAt: 0 });
 let S = freshState();
 let SAVE_OK = true, NO_SAVE = false;
 function migrate(s) {
   const f = freshState();
+  // Payments arrived in 1.2: classes ticked before then count as paid, unless you choose otherwise.
+  if (s.payFrom === undefined && s.sessions && Object.values(s.sessions).some(x => x && x.done)) { s.payFrom = mondayOf(today()); s.prefs = Object.assign({}, s.prefs, { payAsk: true }); }
   for (const k of Object.keys(f)) if (s[k] === undefined || s[k] === null) s[k] = f[k];
   s.prefs = Object.assign(f.prefs, s.prefs);
   Object.values(s.classes).forEach(fixClass);

@@ -12,10 +12,10 @@ VIEWS.today = {
     const t = today(), cls = liveClasses();
     if (!cls.length && !Object.keys(S.sessions).length) return welcome();
     const mon = mondayOf(t), wk = weekSummary(mon), all = wk.earned + wk.aheadAmt + wk.missedAmt;
-    let h = `<a class="wk" href="#/earnings/${mon}" aria-label="This week: ${money(wk.earned)} earned. Open earnings.">${icon('chev-r', 'go')}
+    let h = `<a class="wk" href="#/earnings/${mon}" aria-label="This week: ${money(wk.earned)} earned. Open Money.">${icon('chev-r', 'go')}
       <span class="wk-l">This week · ${fmtWeek(mon)}</span><div class="wk-n">${money(wk.earned)}</div>
       <div class="wk-bar"><i style="width:${all ? Math.round((wk.earned / all) * 100) : 0}%"></i></div>
-      <div class="wk-s"><span>${wk.done.length} of ${plural(wk.occs.length, 'class', 'classes')} taught</span><span>${wk.aheadAmt ? `${money(wk.aheadAmt)} to come` : wk.occs.length ? 'All done' : ''}</span></div></a>`;
+      <div class="wk-s"><span>${wk.done.length} of ${plural(wk.occs.length, 'class', 'classes')} taught</span><span>${wk.aheadAmt ? `${money(wk.aheadAmt)} to come` : wk.occs.length ? 'All done' : ''}</span></div></a>${moneyStrip()}`;
 
     const missed = notTicked();
     if (missed.length) {
@@ -36,7 +36,7 @@ VIEWS.today = {
     if (stuff >= 5 && Date.now() - lastBk > 30 * 864e5) h += `<div class="callout warn" style="margin-top:24px">${icon('download')}<div><p><b>${lastBk ? 'It’s been a while since your last backup.' : 'Make a backup.'}</b> Everything is kept on this phone only, so a backup protects your classes and photos if the phone is lost or replaced.</p><a class="btn sm" href="#/settings">Back up in Settings</a></div></div>`;
 
     const tech = dayPick(TECH, 'tech'), act = dayPick(THERAPY, 'calm'), th = THEME_BY[act.th] || THEMES[0];
-    h += `<div class="sec"><h2>Ideas for today</h2><a class="link" href="#/ideas">More ideas</a></div>
+    h += `<div class="sec"><h2>Ideas for today</h2><a class="link" href="#/ideas">More ideas</a></div>${seasonForToday()}
       <a class="card tcard" href="#/technique/${tech.id}"><figure class="illus mini" style="margin:0">${illus(tech.ill)}</figure><span class="t"><small>Technique</small><b>${esc(tech.n)}</b><small>${esc(tech.sum)}</small></span></a>
       <a class="card acard tint-${th.c}" href="#/activity/${act.id}"><span class="art-mini">${actArt(act)}</span><span class="t"><small>Art therapy · ${esc(th.n)}</small><b>${esc(act.n)}</b><small>${esc(act.sum)}</small></span></a>`;
 
@@ -44,7 +44,7 @@ VIEWS.today = {
     if (recent.length) h += `<div class="sec"><h2>Recent photos</h2><a class="link" href="#/photos">All photos</a></div><div class="thumbs">${recent.map(id => photoTile(id, { href: `#/photo/${id}`, cap: '' })).join('')}</div>`;
     return h;
   },
-  act: Object.assign({}, SESS_ACTS, { add: () => openClassEditor(null, { open: true }), nsw: () => { addNswTerms(); render(); } }),
+  act: Object.assign({}, SESS_ACTS, { add: () => openClassEditor(null, { open: true }), nsw: () => { addNswTerms(); render(); }, spend: () => openExpense() }),
 };
 function welcome() {
   return `<div class="welcome-dot">${dotArt('happy', 'bob', { wave: true, brush: true })}<p class="bubble">Hello! I’m Dot. Let’s get your classes in.</p></div>

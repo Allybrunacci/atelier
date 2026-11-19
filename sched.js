@@ -39,6 +39,8 @@ function fixClass(c) {
   c.name = c.name || 'Class';
   c.place = c.place || '';
   c.note = c.note || '';
+  c.payer = c.payer || '';
+  c.km = num(c.km) > 0 ? num(c.km) : 0;
   return c;
 }
 const liveClasses = () => Object.values(S.classes).filter(c => !c.archived).sort((a, b) => a.name.localeCompare(b.name));
@@ -162,8 +164,8 @@ function payLines(c, s, d) {
   if (c.pay.mode === 'flat') return [['Class fee', num(c.pay.flat)]];
   const lines = [];
   for (const st of activeStudents(c, d)) {
-    if (st.type === 'term') lines.push([`${st.name || 'Student'} · term`, rateOf(c, st), isHere(s, st) ? '' : 'away, paid for the term']);
-    else if (isHere(s, st)) lines.push([`${st.name || 'Student'} · ${st.from && st.from === st.to ? 'drop-in' : 'casual'}`, rateOf(c, st)]);
+    if (st.type === 'term') lines.push([`${st.name || 'Student'} · term`, rateOf(c, st), isHere(s, st) ? '' : 'away, paid for the term', st.id]);
+    else if (isHere(s, st)) lines.push([`${st.name || 'Student'} · ${st.from && st.from === st.to ? 'drop-in' : 'casual'}`, rateOf(c, st), '', st.id]);
   }
   return lines;
 }

@@ -21,7 +21,7 @@ function openSession(key) {
     if (c.kind === 'group') {
       const sts = activeStudents(c, o.date);
       b += `<h3>Who came</h3>${c.pay.mode === 'student' ? '<p class="fine">Term students are counted every class, even when they’re away. Casual students are counted when ticked.</p>' : ''}
-        <div class="list">${sts.map(st => attRow(st, s)).join('') || '<p class="fine" style="padding:12px 16px">No students in this class yet.</p>'}</div>${dropInForm()}`;
+        <div class="list">${sts.map(st => attRow(st, s, o)).join('') || '<p class="fine" style="padding:12px 16px">No students in this class yet.</p>'}</div>${dropInForm(o)}`;
     }
 
     // pay
@@ -31,7 +31,8 @@ function openSession(key) {
       <tr class="total"><td>${done ? 'Earned' : 'To earn'}</td><td>${money(adj ? s.adj : worked)}</td></tr></tbody></table>
       ${payEdit ? `<div class="row" style="margin-top:12px"><label class="field grow" style="margin:0"><span class="f-l">Amount for this class</span><span class="money-in"><input name="adj" inputmode="decimal" value="${adj ? esc(num(s.adj)) : ''}" placeholder="${esc(worked)}"></span></label><button type="button" class="btn primary" data-act="adjok" style="align-self:flex-end">Save</button></div>`
         : `<div class="btn-row"><button type="button" class="btn sm" data-act="adj">${icon('edit', 'sm')} Change amount</button>${adj ? '<button type="button" class="btn sm ghost" data-act="adjclear">Use worked-out amount</button>' : ''}</div>`}
-      ${done && s.pay && linesTotal(payLines(c, s, o.date)) !== s.pay.total && !adj ? `<p class="fine" style="margin-top:8px">${icon('info', 'sm')} The class’s rates have changed since this was ticked. <button type="button" class="btn sm ghost" data-act="repay">Use new rates (${money(linesTotal(payLines(c, s, o.date)))})</button></p>` : ''}`;
+      ${done && s.pay && linesTotal(payLines(c, s, o.date)) !== s.pay.total && !adj ? `<p class="fine" style="margin-top:8px">${icon('info', 'sm')} The class’s rates have changed since this was ticked. <button type="button" class="btn sm ghost" data-act="repay">Use new rates (${money(linesTotal(payLines(c, s, o.date)))})</button></p>` : ''}
+      ${(c.kind === 'private' || c.pay.mode === 'flat') && !o.cancelled && tracksPay(o.date) && payOf(o) > 0 ? `<div class="att pay-who"><div class="t"><b>${esc(classPayer(c))}</b><small>${S.paid[chargeFor(o, null).key] ? `Paid ${fmtDate(S.paid[chargeFor(o, null).key].d)} · ${howName(S.paid[chargeFor(o, null).key].how).toLowerCase()}` : 'Not paid yet'}</small></div>${paidBtn(o, null)}</div>` : ''}`;
 
     // lesson
     b += `<h3>Lesson</h3><label class="field"><span class="f-l">What you’re teaching</span><input name="topic" value="${esc(s.topic || '')}" placeholder="e.g. Cross-hatching a still life" autocomplete="off"></label>
@@ -178,7 +179,7 @@ function openSession(key) {
 
 // A lesson from the planner, with its running sheet for the class's length.
 function planCard(p, mins, color) {
-  const run = p.kind === 'therapy' && typeof therapySheet === 'function' ? therapySheet(p, mins) : runSheet(p, mins, p.age);
+  const run = p.parts ? p.parts.map(x => [x[0], x[1], x[2]]) : p.kind === 'therapy' && typeof therapySheet === 'function' ? therapySheet(p, mins) : runSheet(p, mins, p.age);
   return `<div class="card flat plan-card" style="--c:${color || 'var(--accent)'};margin-top:16px">
     <p class="kicker" style="margin:0">${esc(p.from || 'From your term plan')}${p.wk ? ` · week ${p.wk}` : ''}</p>
     <h3 style="margin:4px 0 6px">${esc(p.t)}</h3>${p.aim ? `<p>${esc(p.aim)}</p>` : ''}

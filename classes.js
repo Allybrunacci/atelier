@@ -152,7 +152,7 @@ const oftenVal = r => (r.type === 'once' ? 'once' : r.type === 'monthly' ? 'mont
 const oftenOpts = r => (r.type === 'weekly' && r.every > 4 ? OFTEN.slice(0, 4).concat([[`w${r.every}`, `Every ${r.every} weeks`]], OFTEN.slice(4)) : OFTEN);
 function openClassEditor(c, opts = {}) {
   const isNew = !c;
-  const d = fixClass(c ? JSON.parse(JSON.stringify(c)) : { id: uid(), name: '', kind: 'group', start: opts.date || today(), time: '16:00', mins: 60, color: nextColour(), students: [] });
+  const d = fixClass(c ? JSON.parse(JSON.stringify(c)) : Object.assign({ id: uid(), name: '', kind: 'group', start: opts.date || today(), time: '16:00', mins: 60, color: nextColour(), students: [] }, opts.preset || {}));
   if (isNew) d.rep.days = [dow(d.start)];
   const orig = c ? schedSig(c) : '';
   let err = '', scope = 'from', from = today(), fee = '', feeTerm = (currentTerm() || {}).id || '';
@@ -167,6 +167,7 @@ function openClassEditor(c, opts = {}) {
     if (d.kind === 'private') b += `<label class="field"><span class="f-l">Student’s name (optional)</span><input name="pname" value="${esc((d.students[0] || {}).name || '')}" autocomplete="off"></label>`;
     b += `<div class="field"><span class="f-l">Colour</span><div class="swatches" role="radiogroup" aria-label="Colour">${PIGMENTS.map(([n, col]) => `<button type="button" role="radio" aria-checked="${d.color === col}" aria-label="${n}" class="${d.color === col ? 'on' : ''}" style="--c:${col}" data-act="col" data-c="${col}">${icon('check')}</button>`).join('')}</div></div>
       <label class="field"><span class="f-l">Where (optional)</span><input name="place" value="${esc(d.place)}" placeholder="e.g. Community hall, or online" autocomplete="off"></label>
+      <label class="field"><span class="f-l">Driving there and back (optional)</span><input name="km" inputmode="decimal" value="${d.km ? esc(d.km) : ''}" placeholder="Kilometres" autocomplete="off"><small class="f-h">Each class you tick then counts as a car trip at tax time.</small></label>
 
       <h3 class="form-sec">When</h3>
       <div class="two"><label class="field"><span class="f-l">${isNew ? 'First class' : 'Started'}</span><input type="date" name="start" value="${d.start}"></label><label class="field"><span class="f-l">Start time</span><input type="time" name="time" value="${d.time}"></label></div>
@@ -192,10 +193,11 @@ function openClassEditor(c, opts = {}) {
     }
 
     b += '<h3 class="form-sec">Pay</h3>';
-    if (d.kind === 'private') b += `<label class="field"><span class="f-l">Fee per class</span><span class="money-in"><input name="flat" inputmode="decimal" value="${esc(d.pay.flat || '')}" placeholder="0"></span></label>`;
+    const payerField = () => `<label class="field"><span class="f-l">Who pays (optional)</span><input name="payer" value="${esc(d.payer || '')}" placeholder="${d.kind === 'private' ? 'e.g. Sarah Lee (Lily’s mum)' : 'e.g. Epping Community Centre'}" autocomplete="off"><small class="f-h">For invoices and the Who’s paid list. Leave it empty to use the ${d.kind === 'private' ? 'student’s' : 'class’s'} name.</small></label>`;
+    if (d.kind === 'private') b += `<label class="field"><span class="f-l">Fee per class</span><span class="money-in"><input name="flat" inputmode="decimal" value="${esc(d.pay.flat || '')}" placeholder="0"></span></label>${payerField()}`;
     else {
       b += `<div class="field">${seg('pmode', [['student', 'Per student'], ['flat', 'One fee for the class']], d.pay.mode)}</div>`;
-      if (d.pay.mode === 'flat') b += `<label class="field"><span class="f-l">Fee per class</span><span class="money-in"><input name="flat" inputmode="decimal" value="${esc(d.pay.flat || '')}" placeholder="0"></span><small class="f-h">The same amount whoever comes.</small></label>`;
+      if (d.pay.mode === 'flat') b += `<label class="field"><span class="f-l">Fee per class</span><span class="money-in"><input name="flat" inputmode="decimal" value="${esc(d.pay.flat || '')}" placeholder="0"></span><small class="f-h">The same amount whoever comes.</small></label>${payerField()}`;
       else {
         const terms = sortedTerms().filter(t => t.end >= addDays(today(), -120)), tt = S.terms.find(t => t.id === feeTerm) || terms[0], n = tt ? draftCount(d, tt.start, tt.end) : 0;
         b += `<div class="two"><label class="field"><span class="f-l">Term students, per class</span><span class="money-in"><input name="term" inputmode="decimal" value="${esc(d.pay.term || '')}" placeholder="0"></span></label>
@@ -275,13 +277,14 @@ function openClassEditor(c, opts = {}) {
           save();
           sh.close();
           const nx = nextOcc(S.classes[d.id]);
+          if (opts.then) opts.then(S.classes[d.id]);
           if (opts.open) go(`#/class/${d.id}`); else render();
           toast(`${icon('check')} ${esc(d.name)} added${nx ? `. First class ${relDay(nx.date).toLowerCase() === 'today' ? 'today' : `on ${fmtDate(nx.date)}`}, ${fmtTime(nx.time)}` : ''}`, { ms: 4500 });
           return;
         }
         const schedChanged = schedSig(d) !== orig;
         const next = { start: d.start, time: d.time, mins: d.mins, rep: d.rep, termsOnly: d.termsOnly };
-        for (const k of ['name', 'kind', 'color', 'place', 'note', 'pay', 'students']) c[k] = d[k];
+        for (const k of ['name', 'kind', 'color', 'place', 'note', 'pay', 'students', 'payer', 'km']) c[k] = d[k];
         if (schedChanged) {
           const f = scope === 'from' && hasPast ? from : '';
           if (f && f > (c.since || c.start) && occurrences(firstDate(c), addDays(f, -1), c.id, true).some(o => !o.extra)) {
@@ -302,6 +305,8 @@ function openClassEditor(c, opts = {}) {
       const el = e.target, n = el.name, v = el.value;
       if (n === 'name') d.name = v;
       else if (n === 'place') d.place = v;
+      else if (n === 'payer') d.payer = v.trim() ? v : '';
+      else if (n === 'km') d.km = hasNum(v) && num(v) > 0 ? num(v) : 0;
       else if (n === 'note') d.note = v;
       else if (n === 'pname') { if (!d.students[0]) d.students[0] = { id: uid(), name: '', type: 'casual', rate: null, from: '', to: '' }; d.students[0].name = v; }
       else if (n === 'flat' || n === 'term' || n === 'casual') d.pay[n] = hasNum(v) ? num(v) : 0;

@@ -13,19 +13,26 @@ VIEWS.settings = {
       ${terms.length ? `<div class="list">${terms.map(x => `<button type="button" class="lrow" data-act="term" data-id="${x.id}"><span class="t"><b>${esc(x.name)}${x.start <= t && x.end >= t ? ' <span class="pill ok">Now</span>' : ''}</b><small>${fmtDate(x.start, { year: true })} to ${fmtDate(x.end, { year: true })} · ${plural(Math.round((daysBetween(x.start, x.end) + 1) / 7), 'week')}</small></span>${icon('edit', 'go')}</button>`).join('')}</div>` : ''}
       <div class="btn-row"><button type="button" class="btn soft" data-act="term">${icon('plus')} Add a term</button><button type="button" class="btn" data-act="nsw">${icon('school')} Add NSW school terms</button></div>
       <p class="fine" style="margin-top:8px">NSW public school terms (Eastern division, including Sydney) for Term 4 2026 and all of 2027, from the NSW Department of Education. Some schools differ, so check your students’ schools.</p>`;
-    h += `<div class="sec"><h2>Backup</h2></div><p class="sec-intro">Everything is kept on this phone only. A backup is one file with your classes, earnings, plans and photos.${bk ? ` Last backup: ${fmtDate(new Date(bk).toISOString().slice(0, 10), { long: true })}.` : ' You haven’t made one yet.'}</p>
+    h += `<div class="sec"><h2>Backup</h2></div><p class="sec-intro">Everything is kept on this phone only. A backup is one file with your classes, money records, plans, photos and receipts.${bk ? ` Last backup: ${fmtDate(new Date(bk).toISOString().slice(0, 10), { long: true })}.` : ' You haven’t made one yet.'}</p>
       <div class="btn-row" style="margin-top:0"><button type="button" class="btn primary" data-act="backup">${icon('download')} Back up now</button><button type="button" class="btn" data-act="restore">${icon('upload')} Restore a backup</button></div>
       <input type="file" id="restore-file" accept=".zip,.json,application/zip,application/json" hidden>
       <p class="fine" style="margin-top:8px">On iPhone, choose <b>Save to Files</b> and pick iCloud Drive, so the backup is safe if the phone is lost.</p>`;
-    h += `<div class="sec"><h2>Earnings</h2></div><div class="btn-row" style="margin-top:0"><button type="button" class="btn" data-act="csv">${icon('share')} Export earnings to a spreadsheet</button></div>`;
+    const b = biz();
+    h += `<div class="sec"><h2>Money</h2></div><div class="list card" style="padding:0">
+      <button type="button" class="lrow" data-act="biz">${icon('user')}<span class="t"><b>Your details for invoices</b><small>${b.name ? `${esc(b.name)}${b.abn ? ` · ABN ${esc(fmtAbn(b.abn))}` : ''}` : 'Not added yet'}</small></span>${icon('chev-r', 'go')}</button>
+      <button type="button" class="lrow" data-act="payfrom">${icon('money')}<span class="t"><b>Track payments from</b><small>${S.payFrom ? fmtDate(S.payFrom, { long: true, year: true }) : 'Every class you’ve ticked'}</small></span>${icon('chev-r', 'go')}</button>
+      <a class="lrow" href="#/tax">${icon('calc')}<span class="t"><b>Tax time</b><small>A summary and tax pack for each financial year</small></span>${icon('chev-r', 'go')}</a></div>
+      <div class="btn-row"><button type="button" class="btn" data-act="csv">${icon('share')} Export earnings to a spreadsheet</button></div>`;
     h += `<div class="sec"><h2>Storage</h2></div><p>${plural(Object.keys(S.classes).length, 'class', 'classes')}, ${plural(Object.values(S.sessions).filter(s => s.done).length, 'ticked class', 'ticked classes')}, ${plural(nPh, 'photo')} (${kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`}).</p><p class="fine" id="persist"></p>
       ${standalone() ? '' : `<div class="callout">${icon('info')}<p>On iPhone, open Atelier in Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>. It then opens like an app, works offline, and Safari won’t clear your photos.</p></div>`}`;
-    h += `<div class="sec"><h2>About</h2></div><p class="fine">Atelier ${APP_VERSION}. No accounts, no ads and no tracking. Nothing leaves this phone unless you share or back it up. Fonts: Fraunces, Nunito and Caveat (SIL Open Font License 1.1). Illustrations, Dot and the printables are drawn by the app. School term dates: NSW Department of Education. Helpline numbers were checked on each service’s own website in November 2026.</p>`;
-    h += `<div class="sec"><h2>Start again</h2></div><p class="sec-intro">Deletes every class, earning, plan and photo on this phone. Make a backup first if you might want them back.</p><button type="button" class="btn danger-ghost" data-act="wipe">${icon('trash')} Delete everything</button>`;
+    h += `<div class="sec"><h2>About</h2></div><p class="fine">Atelier ${APP_VERSION}. No accounts, no ads and no tracking. Nothing leaves this phone unless you share or back it up. Fonts: Fraunces, Nunito and Caveat (SIL Open Font License 1.1).     Illustrations, Dot and the printables are drawn by the app. School term dates: NSW Department of Education. Helpline numbers were checked on each service’s own website in November 2026. Car travel uses the ATO’s cents per kilometre rates, checked on ato.gov.au in November 2026.</p>`;
+        h += `<div class="sec"><h2>Start again</h2></div><p class="sec-intro">Deletes every class, payment, invoice, expense, plan and photo on this phone. Make a backup first if you might want them back.</p><button type="button" class="btn danger-ghost" data-act="wipe">${icon('trash')} Delete everything</button>`;
     return h;
   },
   act: {
     nsw: () => { addNswTerms(); render(); },
+    biz: () => openBizEditor(),
+    payfrom: () => openPayFrom(),
     term: a => editTerm(S.terms.find(x => x.id === a.dataset.id)),
     csv: () => exportEarnings(),
     backup: async a => {
