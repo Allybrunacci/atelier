@@ -1,12 +1,14 @@
 /* Atelier — offline support. Network first so updates show straight away; the cache is the fallback.
    Only touches its own caches and its own folder, so other apps on the same site are unaffected. */
-const CACHE = 'atelier-v1';
+const CACHE = 'atelier-v2';
 const SHELL = [
-  './', './index.html', './app.css', './core.js', './sched.js', './db.js', './illus.js', './illus2.js', './techniques.js', './techniques2.js',
-  './therapy.js', './plans.js', './parts.js', './session.js', './classes.js', './calendar.js', './today.js', './earnings.js', './photos.js',
-  './ideas.js', './planner.js', './settings.js', './manifest.webmanifest',
+  './', './index.html', './app.css', './core.js', './sched.js', './db.js', './deco.js', './illus.js', './illus2.js', './techniques.js', './techniques2.js',
+  './therapy.js', './therapy2.js', './therapy3.js', './therapy4.js', './therapy5.js', './therapy6.js', './tprompts.js', './tguides.js', './tprograms.js',
+  './plans.js', './parts.js', './session.js', './classes.js', './calendar.js', './today.js', './earnings.js', './photos.js',
+  './ideas.js', './planner.js', './heal.js', './ttools.js', './tdraw.js', './tprint.js', './settings.js', './manifest.webmanifest',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png',
-  './fonts/fraunces-latin.woff2', './fonts/fraunces-italic-latin.woff2', './fonts/nunitosans-latin.woff2',
+  './img/grain-light.png', './img/grain-dark.png',
+  './fonts/fraunces-soft-latin.woff2', './fonts/nunito-latin.woff2', './fonts/caveat-latin.woff2',
 ];
 
 self.addEventListener('install', e => {
@@ -14,12 +16,13 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k.startsWith('atelier-') && k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim()),
-  );
+  e.waitUntil(sweep().then(() => self.clients.claim()));
 });
+// Removes older Atelier caches. Runs on activation and again on each page open, because an older version's worker can
+// still be saving files for a moment after this one takes over. Only touches caches named atelier-*.
+function sweep() {
+  return caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('atelier-') && k !== CACHE).map(k => caches.delete(k))));
+}
 
 function network(req, ms) {
   return new Promise((resolve, reject) => {
@@ -34,6 +37,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
   if (!url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
+  if (req.mode === 'navigate') e.waitUntil(sweep());
   e.respondWith(
     network(req, 4000)
       .then(res => {

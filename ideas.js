@@ -30,19 +30,19 @@ function addToClass(id) {
 /* ---------- the hub ---------- */
 VIEWS.ideas = {
   title: 'Ideas',
-  head() { return { title: 'Ideas', sub: 'Term plans, techniques and art therapy activities', actions: `<div class="vh-act"><a class="icon-btn" href="#/settings" aria-label="Settings">${icon('cog')}</a></div>` }; },
+  head() { return { deco: true, title: 'Ideas', sub: 'Term plans, techniques and lesson ideas', actions: `<div class="vh-act"><a class="icon-btn" href="#/settings" aria-label="Settings">${icon('cog')}</a></div>` }; },
   render() {
     const plans = Object.values(S.plans).sort((a, b) => b.at - a.at), favs = Object.keys(S.favs).sort((a, b) => S.favs[b] - S.favs[a]);
     const idea = lessonIdea();
     let h = `<div class="hub">
-      <a class="card hub-card" href="#/plan"><span class="hub-ico">${icon('plan')}</span><span class="t"><h3>Plan a term</h3><p>Week-by-week lesson plans with timings for your class, in three styles to choose from.</p></span>${icon('chev-r', 'go')}</a>
-      <a class="card hub-card" href="#/techniques"><span class="hub-ico s">${icon('brush')}</span><span class="t"><h3>Techniques</h3><p>${TECH.length} skills, methods and techniques, explained step by step with illustrations.</p></span>${icon('chev-r', 'go')}</a>
-      <a class="card hub-card" href="#/therapy"><span class="hub-ico g">${icon('heart')}</span><span class="t"><h3>Art therapy activities</h3><p>${THERAPY.length} wellbeing activities for calm, feelings, identity and connection.</p></span>${icon('chev-r', 'go')}</a></div>`;
+      <a class="card hub-card tint-sky" href="#/plan"><span class="hub-ico art" aria-hidden="true">${themeArt('programs')}</span><span class="t"><h3>Plan a term</h3><p>Week-by-week lesson plans with timings for your class, in three styles to choose from.</p></span>${icon('chev-r', 'go')}</a>
+      <a class="card hub-card tint-peach" href="#/techniques"><span class="hub-ico art" aria-hidden="true">${motifArt('paint', 'techniques')}</span><span class="t"><h3>Techniques</h3><p>${TECH.length} skills, methods and techniques, explained step by step with illustrations.</p></span>${icon('chev-r', 'go')}</a>
+      <a class="card hub-card tint-pink" href="#/therapy"><span class="hub-ico art" aria-hidden="true">${themeArt('feel')}</span><span class="t"><h3>Art therapy</h3><p>${THERAPY.length} wellbeing activities, plus calming tools, prompts, programs and guides, in their own tab.</p></span>${icon('chev-r', 'go')}</a></div>`;
     h += `<div class="sec"><h2>Lesson idea</h2><button type="button" class="btn sm ghost" data-act="shuffle">${icon('shuffle', 'sm')} Another</button></div>
-      <div class="card"><div class="row" style="align-items:flex-start"><figure class="illus mini" style="margin:0">${illus(idea.t.ill)}</figure><div class="grow"><p class="kicker" style="margin:0">Draw ${esc(idea.subj)} using</p><h3 style="margin:2px 0 4px"><a href="#/technique/${idea.t.id}" style="color:inherit">${esc(idea.t.n)}</a></h3><p class="fine" style="margin:0">Warm-up: ${esc(idea.warm[0])}</p></div></div>
+      <div class="card"><div class="row" style="align-items:flex-start"><figure class="illus mini" style="margin:0">${illus(idea.t.ill)}</figure><div class="grow"><p class="kicker" style="margin:0">Draw ${esc(idea.subj)} using</p><h3 style="margin:2px 0 4px"><a class="h-link" href="#/technique/${idea.t.id}">${esc(idea.t.n)}</a></h3><p class="fine" style="margin:0">Warm-up: ${esc(idea.warm[0])}</p></div></div>
       <div class="btn-row"><button type="button" class="btn soft sm" data-act="useidea">${icon('plus', 'sm')} Use for a class</button></div></div>`;
     if (plans.length) h += `<div class="sec"><h2>Saved plans</h2></div><div class="list">${plans.map(p => `<a class="lrow" href="#/plan/${p.id}"><span class="t"><b>${esc(p.name)}</b><small>${plural(p.weeks.length, 'week')} · ${esc(p.opt)}${p.cid && S.classes[p.cid] ? ` · ${esc(S.classes[p.cid].name)}` : ''}</small></span>${icon('chev-r', 'go')}</a>`).join('')}</div>`;
-    if (favs.length) h += `<div class="sec"><h2>Favourites</h2></div><div class="list">${favs.map(k => { const a = k.startsWith('a:'), x = a ? THERAPY_BY[k.slice(2)] : TECH_BY[k.slice(2)]; return x ? `<a class="lrow" href="${a ? `#/activity/${x.id}` : `#/technique/${x.id}`}">${icon(a ? 'heart' : 'brush')}<span class="t"><b>${esc(x.n)}</b><small>${esc(x.sum)}</small></span>${icon('chev-r', 'go')}</a>` : ''; }).join('')}</div>`;
+    if (favs.filter(k => k.startsWith('t:')).length) h += `<div class="sec"><h2>Favourite techniques</h2></div><div class="list">${favs.filter(k => k.startsWith('t:')).map(k => { const x = TECH_BY[k.slice(2)]; return x ? `<a class="lrow" href="#/technique/${x.id}">${icon('brush')}<span class="t"><b>${esc(x.n)}</b><small>${esc(x.sum)}</small></span>${icon('chev-r', 'go')}</a>` : ''; }).join('')}</div>`;
     return h;
   },
   act: {
@@ -116,37 +116,4 @@ VIEWS.technique = {
       <div class="btn-row" style="justify-content:space-between">${prev ? `<a class="btn ghost" href="#/technique/${prev.id}">${icon('chev-l')} ${esc(prev.n)}</a>` : '<span></span>'}${next ? `<a class="btn ghost" href="#/technique/${next.id}">${esc(next.n)} ${icon('chev-r')}</a>` : ''}</div>`;
   },
   act: { fav: a => toggleFav(a.dataset.k), add: () => addToClass(UI.param) },
-};
-
-/* ---------- art therapy ---------- */
-VIEWS.therapy = {
-  tab: 'ideas', title: 'Art therapy activities',
-  head() { return { back: '#/ideas', title: 'Art therapy activities', sub: `${THERAPY.length} wellbeing activities` }; },
-  render() {
-    return `<div class="callout care">${icon('heart')}<div><p>These are wellbeing art activities: making art to feel calmer, express feelings and connect, with no right or wrong results. Art therapy itself is a clinical practice delivered by a qualified, registered art therapist (in Australia, registered with ANZACATA).</p><p>If a student becomes distressed, pause, stay with them calmly, and help them reach support: a parent or carer, a GP, <b>Lifeline 13 11 14</b> or <b>Kids Helpline 1800 55 1800</b>. In an emergency, call <b>000</b>.</p></div></div>
-      ${THEMES.map(th => { const as = THERAPY.filter(a => a.th === th.id); return `<div class="sec"><h2>${th.n}</h2></div><p class="sec-intro">${esc(th.d)}</p>${as.map(a => `<a class="card tcard" href="#/activity/${a.id}"><span class="hub-ico g">${icon(th.icon)}</span><span class="t"><b>${esc(a.n)}${isFav('a:' + a.id) ? ` ${icon('star-fill', 'sm')}` : ''}</b><small>${esc(a.sum)}</small><small>${fmtMins(a.mins)} · ${esc(a.who)}</small></span></a>`).join('')}`; }).join('')}`;
-  },
-};
-VIEWS.activity = {
-  tab: 'ideas', title: 'Activity',
-  head(id) {
-    const a = THERAPY_BY[id];
-    if (!a) return { back: '#/therapy', title: 'Not found' };
-    return { back: '#/therapy', kicker: THEMES.find(t => t.id === a.th).n, title: esc(a.n), actions: `<div class="vh-act">${favBtn('a:' + id)}</div>` };
-  },
-  render(id) {
-    const a = THERAPY_BY[id];
-    if (!a) return emptyState('warn', 'Activity not found', '', '<a class="btn" href="#/therapy">All activities</a>');
-    const list = (arr, tag = 'ul') => `<${tag}>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</${tag}>`;
-    return `${a.ill ? `<figure class="illus" style="margin:0 0 12px">${illus(a.ill, true)}</figure>` : ''}<div class="meta-chips"><span class="pill">${icon('clock', 'sm')} ${fmtMins(a.mins)}</span><span class="pill">${icon('users', 'sm')} ${esc(a.who)}</span></div>
-      <div class="doc"><p class="lead" style="margin-top:12px">${esc(a.purpose)}</p>
-      <h3>You’ll need</h3>${list(a.mat)}
-      <h3>Steps</h3>${list(a.steps, 'ol')}
-      <h3>Things you might say</h3>${list(a.prompts)}
-      <h3>Adapting it</h3>${list(a.adapt)}
-      <h3>Reflecting afterwards</h3>${list(a.reflect)}
-      <div class="callout care" style="margin-top:16px">${icon('heart')}<p>${esc(a.care || 'Invite, never insist: anyone can pass, keep their work private, or take it home. Focus on the making, not on interpreting the art.')}</p></div></div>
-      <div class="btn-row" style="margin-top:24px"><button type="button" class="btn primary" data-act="add">${icon('plus')} Add to a class</button></div>`;
-  },
-  act: { fav: a => toggleFav(a.dataset.k), add: () => addToClass('a:' + UI.param) },
 };

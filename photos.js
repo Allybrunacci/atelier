@@ -9,7 +9,7 @@ VIEWS.photos = {
   title: 'Photos',
   head() {
     const n = Object.keys(S.photos).length;
-    return { title: 'Photos', sub: n ? `${plural(n, 'photo')}, kept on this phone` : '', actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="add" aria-label="Add photos">${icon('plus')}</button></div>` };
+    return { deco: true, title: 'Photos', sub: n ? `${plural(n, 'photo')}, kept on this phone` : '', actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="add" aria-label="Add photos">${icon('plus')}</button></div>` };
   },
   render() {
     const refs = photoIds('ref').length, arts = photoIds('art').length;

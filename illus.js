@@ -6,7 +6,7 @@ const IL = {};
 let ILN = 0, LBL = true;
 const f1 = n => Math.round(n * 10) / 10;
 const grey = v => `rgb(${v},${v},${v})`;
-const T = (x, y, s, a = 'start', o = {}) => (LBL || o.always ? `<text x="${x}" y="${y}" text-anchor="${a}" font-size="${o.s || 13}" font-weight="${o.w || 700}" fill="${o.c || ITX}" font-family="Nunito Sans,system-ui,sans-serif">${s}</text>` : '');
+const T = (x, y, s, a = 'start', o = {}) => (LBL || o.always ? `<text x="${x}" y="${y}" text-anchor="${a}" font-size="${o.s || 13}" font-weight="${o.w || 700}" fill="${o.c || ITX}" font-family="Nunito,system-ui,sans-serif">${s}</text>` : '');
 const Ln = (x1, y1, x2, y2, w = 1.5, c = IG, x = '') => `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"${x}/>`;
 const P = (d, o = {}) => `<path d="${d}" fill="${o.f || 'none'}" stroke="${o.s || (o.f ? 'none' : IG)}" stroke-width="${o.w || 1.5}" stroke-linecap="round" stroke-linejoin="round"${o.x || ''}/>`;
 const C = (cx, cy, r, o = {}) => `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r)}" fill="${o.f || 'none'}" stroke="${o.s || (o.f ? 'none' : IG)}" stroke-width="${o.w || 1.5}"${o.x || ''}/>`;

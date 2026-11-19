@@ -6,7 +6,7 @@ VIEWS.today = {
   title: 'Today',
   head() {
     const h = new Date().getHours(), g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-    return { kicker: fmtDate(today(), { long: true }), title: `${g}${S.name ? `, ${esc(S.name)}` : ''}`, actions: `<div class="vh-act"><a class="icon-btn" href="#/settings" aria-label="Settings">${icon('cog')}</a></div>` };
+    return { deco: true, kicker: fmtDate(today(), { long: true }), title: `${g}${S.name ? `, ${esc(S.name)}` : ''}`, actions: `<div class="vh-act"><a class="icon-btn" href="#/settings" aria-label="Settings">${icon('cog')}</a></div>` };
   },
   render() {
     const t = today(), cls = liveClasses();
@@ -35,10 +35,10 @@ VIEWS.today = {
     const lastBk = S.prefs.backupAt || 0, stuff = Object.keys(S.photos).length + Object.keys(S.sessions).length;
     if (stuff >= 5 && Date.now() - lastBk > 30 * 864e5) h += `<div class="callout warn" style="margin-top:24px">${icon('download')}<div><p><b>${lastBk ? 'It’s been a while since your last backup.' : 'Make a backup.'}</b> Everything is kept on this phone only, so a backup protects your classes and photos if the phone is lost or replaced.</p><a class="btn sm" href="#/settings">Back up in Settings</a></div></div>`;
 
-    const tech = dayPick(TECH, 'tech'), act = dayPick(THERAPY, 'calm');
+    const tech = dayPick(TECH, 'tech'), act = dayPick(THERAPY, 'calm'), th = THEME_BY[act.th] || THEMES[0];
     h += `<div class="sec"><h2>Ideas for today</h2><a class="link" href="#/ideas">More ideas</a></div>
       <a class="card tcard" href="#/technique/${tech.id}"><figure class="illus mini" style="margin:0">${illus(tech.ill)}</figure><span class="t"><small>Technique</small><b>${esc(tech.n)}</b><small>${esc(tech.sum)}</small></span></a>
-      <a class="card tcard" href="#/activity/${act.id}"><span class="hub-ico s">${icon('heart')}</span><span class="t"><small>Art therapy activity</small><b>${esc(act.n)}</b><small>${esc(act.sum)}</small></span></a>`;
+      <a class="card acard tint-${th.c}" href="#/activity/${act.id}"><span class="art-mini">${actArt(act)}</span><span class="t"><small>Art therapy · ${esc(th.n)}</small><b>${esc(act.n)}</b><small>${esc(act.sum)}</small></span></a>`;
 
     const recent = photoIds('ref').slice(0, 6);
     if (recent.length) h += `<div class="sec"><h2>Recent photos</h2><a class="link" href="#/photos">All photos</a></div><div class="thumbs">${recent.map(id => photoTile(id, { href: `#/photo/${id}`, cap: '' })).join('')}</div>`;
@@ -47,7 +47,8 @@ VIEWS.today = {
   act: Object.assign({}, SESS_ACTS, { add: () => openClassEditor(null, { open: true }), nsw: () => { addNswTerms(); render(); } }),
 };
 function welcome() {
-  return `<div class="card"><h3>Welcome to Atelier</h3><p class="lead">Your art classes, references, student artworks and pay, all in one place, kept on this phone.</p>
+  return `<div class="welcome-dot">${dotArt('happy', 'bob', { wave: true, brush: true })}<p class="bubble">Hello! I’m Dot. Let’s get your classes in.</p></div>
+    <div class="card"><h3>Welcome to Atelier</h3><p class="lead">Your art classes, references, student artworks and pay, all in one place, kept on this phone.</p>
     <ol class="doc" style="padding-left:22px;margin:0 0 4px">
       <li><b>Add your classes</b> once, with how often they repeat. Private or group, with each student as term-paid or casual.</li>
       <li><b>Tick each class</b> after you teach it. Atelier adds up your week, Monday to Sunday.</li>
@@ -55,6 +56,7 @@ function welcome() {
     </ol>
     <button type="button" class="btn primary big block" data-act="add" style="margin-top:12px">${icon('plus')} Add your first class</button></div>
     ${S.terms.length ? '' : `<div class="card"><h3>School terms</h3><p>If some classes only run in school terms, add the term dates so the holidays are skipped.</p><div class="btn-row" style="margin-top:0"><button type="button" class="btn soft" data-act="nsw">${icon('school')} Add NSW school terms</button><a class="btn ghost" href="#/settings">Enter my own</a></div></div>`}
-    <div class="card"><h3>Ideas</h3><p>Plan a whole term of lessons, browse ${TECH.length} techniques with illustrations, or find an art therapy activity.</p><a class="btn soft" href="#/ideas">${icon('bulb')} Explore ideas</a></div>
+    <div class="card"><h3>Ideas</h3><p>Plan a whole term of lessons, or browse ${TECH.length} techniques with illustrations.</p><a class="btn soft" href="#/ideas">${icon('bulb')} Explore ideas</a></div>
+    <div class="card"><h3>Art therapy</h3><p>${THERAPY.length} wellbeing activities, calming tools, prompts and guides for your classes.</p><a class="btn soft" href="#/therapy">${icon('flower')} Open art therapy</a></div>
     <p class="fine" style="margin-top:16px">${icon('info', 'sm')} On iPhone, open this page in Safari, tap Share, then <b>Add to Home Screen</b> so it opens like an app and your photos stay safe.</p>`;
 }

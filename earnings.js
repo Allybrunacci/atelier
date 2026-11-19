@@ -5,7 +5,7 @@ VIEWS.earnings = {
   tab: 'today', title: 'Earnings',
   head(p) {
     const mon = mondayOf(validDate(p) ? p : today());
-    return { back: '#/today', title: 'Earnings', sub: `Week of ${fmtWeek(mon)}`, actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="csv" aria-label="Export to a spreadsheet">${icon('share')}</button></div>` };
+    return { deco: true, back: '#/today', title: 'Earnings', sub: `Week of ${fmtWeek(mon)}`, actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="csv" aria-label="Export to a spreadsheet">${icon('share')}</button></div>` };
   },
   render(p) {
     const t = today(), cur = mondayOf(t), mon = mondayOf(validDate(p) ? p : t), wk = weekSummary(mon);

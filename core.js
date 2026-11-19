@@ -1,7 +1,7 @@
 /* Atelier — core: helpers, dates (weeks start on Monday), saved data, screens, sheets and messages */
 'use strict';
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -76,7 +76,7 @@ const hasNum = v => v !== null && v !== undefined && String(v).trim() !== '' && 
 
 /* ---------- saved data (this phone only) ---------- */
 const STORE_KEY = 'atelier:v1';
-const freshState = () => ({ v: 1, created: today(), name: '', terms: [], classes: {}, sessions: {}, photos: {}, plans: {}, favs: {}, tags: [], prefs: { seen: {} }, savedAt: 0 });
+const freshState = () => ({ v: 1, created: today(), name: '', terms: [], classes: {}, sessions: {}, photos: {}, plans: {}, favs: {}, tags: [], prefs: { seen: {}, breath: { p: 'calm', mins: 2 } }, savedAt: 0 });
 let S = freshState();
 let SAVE_OK = true, NO_SAVE = false;
 function migrate(s) {
@@ -124,7 +124,7 @@ function render(fresh) {
   const v = VIEWS[name], view = $('#view');
   const keep = fresh ? 0 : window.scrollY;
   const head = v.head ? v.head(param) : null;
-  view.innerHTML = `${head ? `<header class="vhead">${head.back ? `<a class="icon-btn" href="${head.back}" aria-label="Back">${icon('chev-l')}</a>` : ''}<div class="vh-txt">${head.kicker ? `<p class="kicker">${head.kicker}</p>` : ''}<h1>${head.title}</h1>${head.sub ? `<p class="vh-sub">${head.sub}</p>` : ''}</div>${head.actions || ''}</header>` : ''}${v.render(param)}`;
+  view.innerHTML = `${head ? `<header class="vhead${head.deco ? ' deco' : ''}">${head.deco && typeof headerArt === 'function' ? headerArt(name) : ''}${head.back ? `<a class="icon-btn" href="${head.back}" aria-label="Back">${icon('chev-l')}</a>` : ''}<div class="vh-txt">${head.kicker ? `<p class="kicker">${head.kicker}</p>` : ''}<h1>${head.title}</h1>${head.sub ? `<p class="vh-sub">${head.sub}</p>` : ''}</div>${head.actions || ''}</header>` : ''}${v.render(param)}`;
   window.scrollTo(0, keep);
   if (fresh && !reduceMotion()) { view.classList.remove('view-in'); void view.offsetWidth; view.classList.add('view-in'); }
   if (v.after) { const c = v.after(view, param); if (fresh || c) UI.cleanup = c || UI.cleanup; }
@@ -233,7 +233,8 @@ const seg = (name, items, val, attrs = '') => `<div class="seg" role="radiogroup
 const field = (label, input, hint = '') => `<label class="field"><span class="f-l">${label}</span>${input}${hint ? `<small class="f-h">${hint}</small>` : ''}</label>`;
 const swatch = c => `<i class="sw" style="--c:${esc(c)}" aria-hidden="true"></i>`;
 function emptyState(ico, title, text, btn = '') {
-  return `<div class="empty">${icon(ico, 'big')}<h3>${title}</h3><p>${text}</p>${btn}</div>`;
+  const art = typeof dotArt === 'function' ? dotArt((typeof EMPTY_MOOD !== 'undefined' && EMPTY_MOOD[ico]) || 'calm', 'bob') : icon(ico, 'big');
+  return `<div class="empty">${art}<h3>${title}</h3><p>${text}</p>${btn}</div>`;
 }
 // When a tap really happened: the event's own timestamp if it's on the page clock.
 const tapTime = e => { const now = performance.now(), t = e && e.timeStamp; return t > 0 && t <= now + 5 && now - t < 1000 ? t : now; };

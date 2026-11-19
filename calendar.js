@@ -3,7 +3,7 @@
 
 VIEWS.calendar = {
   title: 'Calendar',
-  head() { return { title: 'Calendar', actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="new" aria-label="New class">${icon('plus')}</button><a class="icon-btn" href="#/settings" aria-label="Settings">${icon('cog')}</a></div>` }; },
+  head() { return { deco: true, title: 'Calendar', actions: `<div class="vh-act"><button type="button" class="icon-btn" data-act="new" aria-label="New class">${icon('plus')}</button><a class="icon-btn" href="#/settings" aria-label="Settings">${icon('cog')}</a></div>` }; },
   render(p) {
     const sel = validDate(p) ? p : today(), mode = S.prefs.cal === 'week' ? 'week' : 'month', t = today();
     let h = `<div style="margin-bottom:16px">${seg('cmode', [['month', 'Month'], ['week', 'Week']], mode)}</div>`;

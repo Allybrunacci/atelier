@@ -85,9 +85,10 @@ function openSession(key) {
     redraw();
   };
   const act = Object.assign(attActs(o, redraw), {
-    done: () => {
+    done: a => {
       const was = !!(o.s && o.s.done);
       setDone(o, !was);
+      if (!was) celebrateAt(a);
       redraw();
       render();
       toast(was ? `${icon('undo')} Unticked` : `${icon('check')} Taught · ${money(payOf(o))} added to this week`, { undo: () => { setDone(o, was); redraw(); render(); } });
@@ -177,10 +178,10 @@ function openSession(key) {
 
 // A lesson from the planner, with its running sheet for the class's length.
 function planCard(p, mins, color) {
-  const run = runSheet(p, mins, p.age);
+  const run = p.kind === 'therapy' && typeof therapySheet === 'function' ? therapySheet(p, mins) : runSheet(p, mins, p.age);
   return `<div class="card flat plan-card" style="--c:${color || 'var(--accent)'};margin-top:16px">
     <p class="kicker" style="margin:0">${esc(p.from || 'From your term plan')}${p.wk ? ` · week ${p.wk}` : ''}</p>
     <h3 style="margin:4px 0 6px">${esc(p.t)}</h3>${p.aim ? `<p>${esc(p.aim)}</p>` : ''}
     <ul class="run">${run.map(r => `<li><b>${r[0]} min</b><span><em>${esc(r[1])}</em>${esc(r[2])}</span></li>`).join('')}</ul>
-    ${(p.tech || []).length ? `<p class="fine" style="margin:10px 0 0">Techniques: ${p.tech.map(id => `<a href="${techHref(id)}">${esc(techName(id))}</a>`).join(', ')}</p>` : ''}</div>`;
+    ${(p.tech || []).length ? `<p class="fine" style="margin:10px 0 0">${p.kind === 'therapy' ? 'Activity' : 'Techniques'}: ${p.tech.map(id => `<a href="${techHref(id)}">${esc(techName(id))}</a>`).join(', ')}</p>` : ''}</div>`;
 }

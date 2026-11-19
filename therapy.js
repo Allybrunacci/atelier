@@ -1,14 +1,21 @@
 /* Atelier — art therapy (wellbeing art) activities, grouped by theme */
 'use strict';
 
+// Display order. c = the theme's pastel (decoration only; names always appear in words too).
 const THEMES = [
-  { id: 'calm', n: 'Calm and grounding', d: 'Slow, repetitive making to settle busy minds and bodies.', icon: 'leaf' },
-  { id: 'feel', n: 'Feelings', d: 'Gentle ways to notice, express and name feelings, without needing words.', icon: 'heart' },
-  { id: 'self', n: 'Who I am', d: 'Identity, strengths and story, at whatever depth each person chooses.', icon: 'user' },
-  { id: 'connect', n: 'Together', d: 'Shared art that builds belonging, kindness and laughter in a group.', icon: 'users' },
-  { id: 'mind', n: 'Mindful making', d: 'Careful looking and hands-on making that bring attention to the present.', icon: 'target' },
-  { id: 'hope', n: 'Strengths and hope', d: 'Calm places, goals and hopeful futures, and turning mistakes into something new.', icon: 'sparkle' },
+  { id: 'calm', n: 'Calm and grounding', d: 'Slow, repetitive making to settle busy minds and bodies.', icon: 'leaf', c: 'mint' },
+  { id: 'worry', n: 'Worries and stress', d: 'Ways to put worries outside yourself, shrink them down and find some breathing room.', icon: 'cloud', c: 'sky' },
+  { id: 'feel', n: 'Feelings', d: 'Gentle ways to notice, express and name feelings, without needing words.', icon: 'heart', c: 'pink' },
+  { id: 'self', n: 'Who I am', d: 'Identity, strengths and story, at whatever depth each person chooses.', icon: 'user', c: 'lilac' },
+  { id: 'connect', n: 'Together', d: 'Shared art that builds belonging, kindness and laughter in a group.', icon: 'users', c: 'peach' },
+  { id: 'mind', n: 'Mindful making', d: 'Careful looking and hands-on making that bring attention to the present.', icon: 'target', c: 'butter' },
+  { id: 'senses', n: 'Senses and body', d: 'Hands-on making with texture, clay, sound and movement, to feel at home in the body.', icon: 'hand', c: 'peach' },
+  { id: 'nature', n: 'Nature and seasons', d: 'Making with and about the natural world, indoors or outside.', icon: 'flower', c: 'mint' },
+  { id: 'joy', n: 'Play and joy', d: 'Playful, low-stakes making that loosens perfectionism and brings back the fun.', icon: 'smile', c: 'butter' },
+  { id: 'hope', n: 'Strengths and hope', d: 'Calm places, goals and hopeful futures, and turning mistakes into something new.', icon: 'sparkle', c: 'lilac' },
+  { id: 'change', n: 'Loss and change', d: 'Gentle making for goodbyes, grief, moving and other big changes, at each person’s own pace.', icon: 'feather', c: 'sky' },
 ];
+const THEME_BY = Object.fromEntries(THEMES.map(t => [t.id, t]));
 const CHILD_SAFE = 'If anything a student shares suggests they may be unsafe, listen calmly, don’t investigate, and follow child-safety procedures (in NSW, the Child Protection Helpline is 13 21 11).';
 
 const THERAPY = [
@@ -240,4 +247,5 @@ const THERAPY = [
     adapt: ['Blow ink around with a straw for wild shapes.', 'Use leftover paint from the session for the blots.'],
     reflect: ['How did it feel to make a mistake on purpose?', 'What did your mistake turn into?'] },
 ];
-const THERAPY_BY = Object.fromEntries(THERAPY.map(a => [a.id, a]));
+// Filled by indexTherapy() once every activity file has loaded (therapy2.js and later add to THERAPY).
+const THERAPY_BY = {};

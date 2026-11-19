@@ -20,7 +20,7 @@ VIEWS.settings = {
     h += `<div class="sec"><h2>Earnings</h2></div><div class="btn-row" style="margin-top:0"><button type="button" class="btn" data-act="csv">${icon('share')} Export earnings to a spreadsheet</button></div>`;
     h += `<div class="sec"><h2>Storage</h2></div><p>${plural(Object.keys(S.classes).length, 'class', 'classes')}, ${plural(Object.values(S.sessions).filter(s => s.done).length, 'ticked class', 'ticked classes')}, ${plural(nPh, 'photo')} (${kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`}).</p><p class="fine" id="persist"></p>
       ${standalone() ? '' : `<div class="callout">${icon('info')}<p>On iPhone, open Atelier in Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>. It then opens like an app, works offline, and Safari won’t clear your photos.</p></div>`}`;
-    h += `<div class="sec"><h2>About</h2></div><p class="fine">Atelier ${APP_VERSION}. No accounts, no ads and no tracking. Nothing leaves this phone unless you share or back it up. Fonts: Fraunces and Nunito Sans (SIL Open Font License 1.1). Illustrations are drawn by the app. School term dates: NSW Department of Education.</p>`;
+    h += `<div class="sec"><h2>About</h2></div><p class="fine">Atelier ${APP_VERSION}. No accounts, no ads and no tracking. Nothing leaves this phone unless you share or back it up. Fonts: Fraunces, Nunito and Caveat (SIL Open Font License 1.1). Illustrations, Dot and the printables are drawn by the app. School term dates: NSW Department of Education. Helpline numbers were checked on each service’s own website in November 2026.</p>`;
     h += `<div class="sec"><h2>Start again</h2></div><p class="sec-intro">Deletes every class, earning, plan and photo on this phone. Make a backup first if you might want them back.</p><button type="button" class="btn danger-ghost" data-act="wipe">${icon('trash')} Delete everything</button>`;
     return h;
   },
@@ -127,7 +127,7 @@ async function boot() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else { checkDay(); checkForUpdate(); } });
   setInterval(checkDay, 60000);
   window.addEventListener('storage', e => { if (e.key === STORE_KEY && !SHEET) { S = load(); render(); } });
-  try { await Promise.race([Promise.all([document.fonts.load('16px "Nunito Sans"'), document.fonts.load('600 32px Fraunces')]), sleep(1500)]); } catch (e) { /* fonts are optional */ }
+  try { await Promise.race([Promise.all([document.fonts.load('16px Nunito'), document.fonts.load('600 32px Fraunces'), document.fonts.load('700 24px Caveat')]), sleep(1500)]); } catch (e) { /* fonts are optional */ }
   render(true);
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !/[?&]nosw/.test(location.search)) navigator.serviceWorker.register('sw.js').catch(() => {});
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {}); } catch (e) { /* not supported */ }

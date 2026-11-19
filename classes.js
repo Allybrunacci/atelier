@@ -8,7 +8,7 @@ VIEWS.classes = {
   title: 'Classes',
   head() {
     const cls = liveClasses(), n = sum(cls.map(c => (c.kind === 'group' ? regulars(c).length : 1)));
-    return { title: 'Classes', sub: cls.length ? `${plural(cls.length, 'class', 'classes')} · ${plural(n, 'student')}` : '', actions: '<div class="vh-act"><a class="icon-btn" href="#/settings" aria-label="Settings">' + icon('cog') + '</a></div>' };
+    return { deco: true, title: 'Classes', sub: cls.length ? `${plural(cls.length, 'class', 'classes')} · ${plural(n, 'student')}` : '', actions: '<div class="vh-act"><a class="icon-btn" href="#/settings" aria-label="Settings">' + icon('cog') + '</a></div>' };
   },
   render() {
     const cls = liveClasses(), arch = Object.values(S.classes).filter(c => c.archived);
@@ -146,6 +146,10 @@ function draftCount(d, from, to) {
   return n + Object.keys(d.extra).filter(x => x >= from && x <= to).length;
 }
 const schedSig = c => JSON.stringify([c.start, c.time, c.mins, c.rep, !!c.termsOnly]);
+// One "How often" choice covers the repeat type and, for weekly classes, how many weeks apart they are.
+const OFTEN = [['w1', 'Every week'], ['w2', 'Fortnightly'], ['w3', 'Every 3 weeks'], ['w4', 'Every 4 weeks'], ['month', 'Monthly'], ['once', 'Just once']];
+const oftenVal = r => (r.type === 'once' ? 'once' : r.type === 'monthly' ? 'month' : `w${r.every}`);
+const oftenOpts = r => (r.type === 'weekly' && r.every > 4 ? OFTEN.slice(0, 4).concat([[`w${r.every}`, `Every ${r.every} weeks`]], OFTEN.slice(4)) : OFTEN);
 function openClassEditor(c, opts = {}) {
   const isNew = !c;
   const d = fixClass(c ? JSON.parse(JSON.stringify(c)) : { id: uid(), name: '', kind: 'group', start: opts.date || today(), time: '16:00', mins: 60, color: nextColour(), students: [] });
@@ -168,10 +172,9 @@ function openClassEditor(c, opts = {}) {
       <div class="two"><label class="field"><span class="f-l">${isNew ? 'First class' : 'Started'}</span><input type="date" name="start" value="${d.start}"></label><label class="field"><span class="f-l">Start time</span><input type="time" name="time" value="${d.time}"></label></div>
       <div class="field"><span class="f-l">Length</span>${seg('mins', LENGTHS.map(m => [m, fmtMins(m)]).concat([['x', 'Other']]), LENGTHS.includes(d.mins) && !d._otherMins ? d.mins : 'x')}
       ${!LENGTHS.includes(d.mins) || d._otherMins ? `<input class="inp" style="margin-top:8px" name="mins" type="number" inputmode="numeric" min="5" max="600" value="${d.mins}" aria-label="Length in minutes"><small class="f-h">Minutes</small>` : ''}</div>
-      <div class="field"><span class="f-l">Repeats</span>${seg('rtype', [['weekly', 'Weekly'], ['monthly', 'Monthly'], ['once', 'Just once']], r.type)}</div>`;
+      <div class="field"><span class="f-l">How often</span><div class="often">${seg('often', oftenOpts(r), oftenVal(r), 'aria-label="How often"')}</div></div>`;
     if (r.type === 'weekly') {
-      b += `<div class="field"><span class="f-l">How often</span>${seg('every', [[1, 'Every week'], [2, 'Fortnightly'], [3, '3 weeks'], [4, '4 weeks']], r.every)}</div>
-        <div class="field"><span class="f-l">On</span><div class="days">${DAY_SHORT.map((n, i) => chip(n, r.days.includes(i), `data-act="day" data-d="${i}" aria-label="${DAY_LONG[i]}"`)).join('')}</div></div>`;
+      b += `<div class="field"><span class="f-l">On</span><div class="days">${DAY_SHORT.map((n, i) => chip(n, r.days.includes(i), `data-act="day" data-d="${i}" aria-label="${DAY_LONG[i]}"`)).join('')}</div></div>`;
     } else if (r.type === 'monthly') {
       b += `<div class="field"><span class="f-l">Which day</span>${seg('month', [['date', `The ${ordinal(sd)}`], ['nth', `${cap(ordinal(Math.min(4, Math.ceil(sd / 7))))} ${DAY_SHORT[dow(d.start)]}`], ['last', `Last ${DAY_SHORT[dow(d.start)]}`]], r.month)}<small class="f-h">Worked out from the first class’s date (${fmtDate(d.start)}, a ${wd}).</small></div>`;
     }
@@ -224,8 +227,7 @@ function openClassEditor(c, opts = {}) {
   const segs = {
     kind: v => { d.kind = v; d.pay.mode = v === 'group' ? 'student' : 'flat'; },
     mins: v => { if (v === 'x') d._otherMins = true; else { d.mins = +v; d._otherMins = false; } },
-    rtype: v => { d.rep.type = v; },
-    every: v => { d.rep.every = +v; },
+    often: v => { if (v === 'once') d.rep.type = 'once'; else if (v === 'month') d.rep.type = 'monthly'; else { d.rep.type = 'weekly'; d.rep.every = +v.slice(1) || 1; } },
     month: v => { d.rep.month = v; },
     end: v => { d.rep.end = v; if (v === 'date' && !d.rep.until) d.rep.until = addDays(d.start, 7 * 10); },
     scope: v => { scope = v; },

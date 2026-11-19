@@ -34,11 +34,11 @@ function dayGroups(occs, emptyText = '') {
 /* ---------- ticking a class off ---------- */
 const SESS_ACTS = {
   open: a => openSession(a.dataset.key),
-  tick: a => quickTick(a.dataset.key),
+  tick: a => quickTick(a.dataset.key, a),
   restore: a => restoreDate(a.dataset.key),
 };
 const needsRollCall = o => o.c.kind === 'group' && o.c.pay.mode === 'student' && activeStudents(o.c, o.date).some(st => st.type === 'casual');
-function quickTick(key) {
+function quickTick(key, el) {
   const o = occByKey(key);
   if (!o || o.cancelled) return;
   if (o.s && o.s.done) {
@@ -49,6 +49,7 @@ function quickTick(key) {
   }
   if (needsRollCall(o)) { openRollCall(o); return; }
   setDone(o, true);
+  if (el) celebrateAt(el);
   refresh();
   toast(`${icon('check')} ${esc(o.c.name)} taught · ${money(payOf(o))}`, { undo: () => { setDone(o, false); refresh(); } });
 }
@@ -66,7 +67,7 @@ function openRollCall(o) {
   const sh = openSheet(tpl(), {
     label: 'Who came?',
     act: Object.assign(attActs(o, () => sh.set(tpl())), {
-      done: () => { setDone(o, true); sh.close(); refresh(); toast(`${icon('check')} ${esc(o.c.name)} taught · ${money(payOf(o))}`, { undo: () => { setDone(o, false); refresh(); } }); },
+      done: a => { setDone(o, true); celebrateAt(a); sh.close(); refresh(); toast(`${icon('check')} ${esc(o.c.name)} taught · ${money(payOf(o))}`, { undo: () => { setDone(o, false); refresh(); } }); },
     }),
   });
 }
